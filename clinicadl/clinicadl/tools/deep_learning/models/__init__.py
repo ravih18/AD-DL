@@ -54,11 +54,32 @@ def create_autoencoder(options, initial_shape, difference=0):
 
     return decoder
 
+def create_vae(options, initial_shape):
+    """
+    Creates a variational autoencoder object from the model_name.
 
-def init_model(options, initial_shape, autoencoder=False):
+    :param options: (Namespace) arguments needed to create the model.
+    :param initial_shape: (array-like) shape of the input data.    :param difference: (int) difference of depth between the pretrained encoder and the new one.
+    :return: (Module) the model object
+    """
+    from .vae import VanillaVAE
+    from os import path
 
-    model = create_model(options, initial_shape)
-    if autoencoder:
+    vae = VanillaVAE(latent_size=64)
+
+    return vae
+
+def init_model(options, initial_shape, architecture="cnn"):
+
+    possible_architecture = {"cnn", "autoencoder", "vae"}
+    if architecture not in possible_architecture:
+        raise ValueError(f"architecture must be one of {possible_architecture}")
+    
+    if architecture=="cnn":
+        model = create_model(options, initial_shape)
+    elif architecture=="autoencoder":
         model = AutoEncoder(model)
+    elif architecture=="vae":
+        model = create_vae(options, initial_shape)
 
     return model

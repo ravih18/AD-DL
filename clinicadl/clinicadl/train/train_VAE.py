@@ -4,7 +4,7 @@ import torch
 import os
 from torch.utils.data import DataLoader
 
-from ..tools.deep_learning.autoencoder_utils import train, visualize_image, get_criterion
+from ..tools.deep_learning.vae_utils import train, visualize_image, get_criterion
 from ..tools.deep_learning.models import init_model, load_model, transfer_learning
 from ..tools.deep_learning.data import (load_data,
                                         get_transforms,
@@ -13,19 +13,19 @@ from ..tools.deep_learning.data import (load_data,
 from ..tools.deep_learning.iotools import return_logger, check_and_clean
 from ..tools.deep_learning.iotools import commandline_to_json, write_requirements_version, translate_parameters
 
-
-def train_autoencoder(params):
+def train_VAE(params):
     """
-    Trains an autoencoder and writes:
+    Trains an VAE and writes:
         - logs obtained with Tensorboard during training,
         - best models obtained according to the validation loss,
         - for patch and roi modes, the initialization state is saved as it is identical across all folds,
-        - autoencoder reconstructions in nifti files at the end of the training.
+        - VAE reconstructions in nifti files at the end of the training.
 
     If the training crashes it is possible to relaunch the training process from the checkpoint.pth.tar and
     optimizer.pth.tar files which respectively contains the state of the model and the optimizer at the end
     of the last epoch that was completed before the crash.
     """
+
     main_logger = return_logger(params.verbose, "main process")
     train_logger = return_logger(params.verbose, "train")
     check_and_clean(params.output_dir)
@@ -37,7 +37,8 @@ def train_autoencoder(params):
     train_transforms, all_transforms = get_transforms(params.mode,
                                                       minmaxnormalization=params.minmaxnormalization,
                                                       data_augmentation=params.data_augmentation)
-    criterion = get_criterion(params.loss)
+
+    criterion = get_criterion()
 
     if params.split is None:
         if params.n_splits is None:
@@ -89,26 +90,26 @@ def train_autoencoder(params):
         log_dir = os.path.join(params.output_dir, 'fold-%i' % fi, 'tensorboard_logs')
         model_dir = os.path.join(params.output_dir, 'fold-%i' % fi, 'models')
         visualization_dir = os.path.join(params.output_dir, 'fold-%i' % fi, 'autoencoder_reconstruction')
+    
+        vae = init_model(params, initial_shape=data_train.size, architecture="vae")
+        # vae = transfer_learning(vae, fi, source_path=params.transfer_learning_path,
+        #                             gpu=params.gpu, selection=params.transfer_learning_selection)
+        optimizer = getattr(torch.optim, params.optimizer)(filter(lambda x: x.requires_grad, vae.parameters()),
+                                                            lr=params.learning_rate,
+                                                            weight_decay=params.weight_decay)
 
-        decoder = init_model(params, initial_shape=data_train.size, architecture="autoencoder")
-        decoder = transfer_learning(decoder, fi, source_path=params.transfer_learning_path,
-                                    gpu=params.gpu, selection=params.transfer_learning_selection)
-        optimizer = getattr(torch.optim, params.optimizer)(filter(lambda x: x.requires_grad, decoder.parameters()),
-                                                           lr=params.learning_rate,
-                                                           weight_decay=params.weight_decay)
-
-        train(decoder, train_loader, valid_loader, criterion, optimizer, False,
+        train(vae, train_loader, valid_loader, criterion, optimizer, False,
               log_dir, model_dir, params, train_logger)
 
         if params.visualization:
-            best_decoder, _ = load_model(decoder, os.path.join(model_dir, "best_loss"),
+            best_vae, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
                                          params.gpu, filename='model_best.pth.tar')
             nb_images = data_train.size.elem_per_image
             if nb_images <= 2:
                 nb_images *= 3
-            visualize_image(best_decoder, valid_loader, os.path.join(visualization_dir, "validation"),
+            visualize_image(best_vae, valid_loader, os.path.join(visualization_dir, "validation"),
                             nb_images=nb_images)
-            visualize_image(best_decoder, train_loader, os.path.join(visualization_dir, "train"),
+            visualize_image(best_vae, train_loader, os.path.join(visualization_dir, "train"),
                             nb_images=nb_images)
-        del decoder
+        del vae
         torch.cuda.empty_cache()
