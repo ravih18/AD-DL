@@ -40,7 +40,7 @@ class PropBase(object):
     # back prop the one_hot signal
     def backward(self, mu, logvar, mu_avg, logvar_avg):
         self.model.zero_grad()
-        z = self.model.reparameterize_eval(mu, logvar)
+        z = self.model.reparameterize_eval(mu, logvar).cuda()
         one_hot = self.encode_one_hot_batch(z, mu, logvar, mu_avg, logvar_avg)
 
         if self.cuda:
@@ -96,7 +96,7 @@ class GradCAM(PropBase):
         with torch.no_grad():
             self.activiation = self.activiation[None, :, :, :, :]
             self.weights = self.weights[:, None, :, :, :]
-            gcam = F.conv3d(self.activiation, (self.weights), padding=0, groups=len(self.weights))
+            gcam = F.conv3d(self.activiation, (self.weights.cuda()), padding=0, groups=len(self.weights))
             gcam = gcam.squeeze(dim=0)
             gcam = F.upsample(gcam, (self.image_size, self.image_size), mode="bilinear")
             gcam = torch.abs(gcam)
