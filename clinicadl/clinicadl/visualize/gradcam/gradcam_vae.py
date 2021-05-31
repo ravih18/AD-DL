@@ -90,11 +90,21 @@ def attention_map(params):
             ndarr = raw_image.permute(1, 2, 0).cpu().byte().numpy()
             im = Image.fromarray(ndarr.astype(np.uint8))
             # save original image
-            im.save(os.path.join(im_path,
-                                 "{}_{}-origin.png".format(data['participant_id'][0], data['session_id'][0])))
-
-            file_path = os.path.join(im_path,
-                                    "{}_{}-attmap.png".format(data['participant_id'][0], data['session_id'][0]))
+            im.save(os.path.join(
+                im_path,
+                "{}_{}_{}-origin.png".format(
+                    data['participant_id'][0],
+                    data['session_id'][0],
+                    data['label'][0])
+                )
+            )
+            file_path = os.path.join(
+                im_path,
+                "{}_{}—{}-attmap.png".format(
+                    data['participant_id'][0],
+                    data['session_id'][0],
+                    data['label'][0])
+                )
             print(file_path)
             r_im = np.asarray(im)
             # save grad cam

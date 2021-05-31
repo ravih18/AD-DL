@@ -35,7 +35,7 @@ class VanillaVAE(nn.Module):
             nn.Linear(32768, 1024),
             nn.ReLU()
         )
-        
+
         # hidden => mu
         self.fc1 = nn.Linear(1024, self.latent_size)
 
