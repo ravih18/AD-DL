@@ -3,56 +3,42 @@ from torch import nn
 from torch.nn import functional as F
 from torch import optim
 
-
-class Flatten(nn.Module):
-    def forward(self, input):
-        return input.view(input.size(0), -1)
-
-
-class Unflatten(nn.Module):
-    def __init__(self, channel, height, width):
-        super(Unflatten, self).__init__()
-        self.channel = channel
-        self.height = height
-        self.width = width
-
-    def forward(self, input):
-        return input.view(input.size(0), self.channel, self.height, self.width)
-
+from .vae_structure import VAE_Encoder, VAE_Decoder
 
 class VanillaVAE(nn.Module):
-    def __init__(self, latent_size):
+    def __init__(self, input_shape, feature_size,
+                 latent_size, latent_dim,
+                 n_conv, io_layer_channel):
         super(VanillaVAE, self).__init__()
         
+        self.input_shape = input_shape
+        self.feature_size = feature_size
         self.latent_size = latent_size
-        
-        self.encoder = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            Flatten(),
-            nn.Linear(32768, 1024),
-            nn.ReLU()
+        self.latent_dim = latent_dim
+        self.n_conv = n_conv
+        self.io_layer_channel = io_layer_channel
+
+        self.encoder = VAE_Encoder(
+            input_shape=self.input_shape,
+            feature_size=self.feature_size,
+            latent_dim=self.latent_dim,
+            n_conv=self.n_conv,
+            first_layer_channels=self.io_layer_channel
         )
 
         # hidden => mu
-        self.fc1 = nn.Linear(1024, self.latent_size)
+        self.fc1 = nn.Linear(self.feature_size, self.latent_size)
 
         # hidden => logvar
-        self.fc2 = nn.Linear(1024, self.latent_size)
+        self.fc2 = nn.Linear(self.feature_size, self.latent_size)
 
-        self.decoder = nn.Sequential(
-            nn.Linear(self.latent_size, 1024),
-            nn.ReLU(),
-            nn.Linear(1024, 32768),
-            nn.ReLU(),
-            Unflatten(32, 32, 32),
-            nn.ReLU(),
-            nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            nn.ConvTranspose2d(16, 1, kernel_size=4, stride=2, padding=1),
-            nn.Sigmoid()
+        self.decoder = VAE_Decoder(
+            input_shape=self.input_shape,
+            latent_size=self.latent_size,
+            feature_size=self.feature_size,
+            latent_dim=self.latent_dim,
+            n_conv=self.n_conv,
+            last_layer_channels=self.io_layer_channel
         )
 
     def encode(self, x):

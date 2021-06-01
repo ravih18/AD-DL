@@ -65,8 +65,15 @@ def create_vae(options, initial_shape):
     from .vae import VanillaVAE
     from os import path
 
-    vae = VanillaVAE(latent_size=64)
-
+    vae = VanillaVAE(
+        input_shape=initial_shape,
+        feature_size=1024,
+        latent_size=64,
+        latent_dim=1,
+        n_conv=4,
+        io_layer_channel=32,
+    )
+    print(vae)
     return vae
 
 def init_model(options, initial_shape, architecture="cnn"):
