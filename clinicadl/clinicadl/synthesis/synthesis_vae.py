@@ -55,24 +55,27 @@ def evaluate_vae(params):
     model_dir = os.path.join(params.output_dir, 'fold-%i' % 0, 'models')
     vae = init_model(params, initial_shape=data_test.size, architecture="vae")
     model, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
-                          gpu=False, filename='model_best.pth.tar')
+                          params.gpu, filename='model_best.pth.tar')
 
     # create output dir
     im_path = os.path.join(params.output_dir, 'output_images')
     if not os.path.exists(im_path):
         os.mkdir(im_path)
-
+    
     # loop on data set
     with torch.no_grad():
         for _, data in enumerate(test_loader):
             model.eval()
-            
-            imgs = data['image']
+            if params.gpu:
+                imgs = data['image'].cuda()
+            else:
+                imgs = data['image']
 
             synthesized_imgs, _, _ = model(imgs)
 
             for i in range(imgs.size(0)):
-                plt.imshow(synthesized_imgs[i].permute(1, 2, 0)[:, :, 0])
+                out_imgs = synthesized_imgs[i].permute(1, 2, 0).cpu()[:, :, 0]
+                plt.imshow(out_imgs)
                 plt.savefig(os.path.join(
                     im_path,
                     "{}_{}_{}-synthesized.png".format(
@@ -81,3 +84,4 @@ def evaluate_vae(params):
                         data['label'][0])
                     )
                 )
+ 
