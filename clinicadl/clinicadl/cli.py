@@ -25,6 +25,7 @@ TRAIN_CATEGORIES = {
     # ROI-based arguments
     'ROI': '%sROI-based parameters%s' % (Fore.BLUE, Fore.RESET),
     'ROI CNN': '%sROI-based CNN parameters%s' % (Fore.BLUE, Fore.RESET),
+    'PET IMAGES': '%sPET Images parameters%s' % (Fore.BLUE, Fore.RESET),
     # Other optional arguments
     'OPTIONAL': '%sOther options%s' % (Fore.BLUE, Fore.RESET),
     # Model selection
@@ -1012,6 +1013,9 @@ def parse_command_line():
     from clinicadl.visualize.gradcam.gradcam_cli import create_gradcam_parser
     create_gradcam_parser(subparser)
 
+    from clinicadl.synthesis.synthesis_cli import create_synthesis_parser
+    create_synthesis_parser(subparser)
+
     interpret_parser = subparser.add_parser(
         'interpret',
         help='''Interpret classification performed by a CNN with saliency maps.''')
@@ -1108,6 +1112,8 @@ def parse_command_line():
 
 def return_train_parent_parser(retrain=False):
     # Main train parent parser common to train and random search
+    from clinicadl.utils.pet_utils import LIST_SUVR_REFERENCE_REGIONS
+
     train_parent_parser = argparse.ArgumentParser(add_help=False)
     train_pos_group = train_parent_parser.add_argument_group(
         TRAIN_CATEGORIES["POSITIONAL"])
@@ -1126,7 +1132,7 @@ def return_train_parent_parser(retrain=False):
         train_pos_group.add_argument(
             'preprocessing',
             help='Defines the type of preprocessing of CAPS data.',
-            choices=['t1-linear', 't1-extensive', 't1-volume', 'shepplogan'], type=str)
+            choices=['t1-linear', 't1-extensive', 't1-volume', 'shepplogan', 'pet-linear'], type=str)
         train_pos_group.add_argument(
             'tsv_path',
             help='TSV path with subjects/sessions to process.',
@@ -1248,5 +1254,24 @@ def return_train_parent_parser(retrain=False):
     #     help="Replaces default losses: cross-entropy for CNN and MSE for autoencoders.",
     #     type=str, default=None if retrain else "default",
     #     choices=["default", "L1", "L1Norm", "SmoothL1", "SmoothL1Norm"])
+
+    train_pet_group = train_parent_parser.add_argument_group(
+        TRAIN_CATEGORIES["PET IMAGES"])
+    train_pet_group.add_argument(
+        "--suvr_reference_region",
+        default=None,
+        choices=LIST_SUVR_REFERENCE_REGIONS,
+        help="Intensity normalization using the average PET uptake in reference regions "
+        "resulting in a standardized uptake value ratio (SUVR) map. It can be "
+        "cerebellumPons (used for amyloid tracers) or pons (used for 18F-FDG tracers).",
+    )
+    train_pet_group.add_argument(
+        "--acq_label",
+        default=None,
+        type=str,
+        help="Name of the label given to the PET acquisition, specifying the tracer "
+        "used (acq-<acq_label>). For instance it can be 'fdg' for fluorodésoxyglucose "
+        "or 'av45' for florbetapir.",
+    )
 
     return train_parent_parser
