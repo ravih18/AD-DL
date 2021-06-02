@@ -55,7 +55,7 @@ def evaluate_vae(params):
     model_dir = os.path.join(params.output_dir, 'fold-%i' % 0, 'models')
     vae = init_model(params, initial_shape=data_test.size, architecture="vae")
     model, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
-                          params.gpu, filename='model_best.pth.tar')
+                          gpu=False, filename='model_best.pth.tar')
 
     # create output dir
     im_path = os.path.join(params.output_dir, 'output_images')
