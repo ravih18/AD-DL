@@ -66,10 +66,8 @@ def evaluate_vae(params):
     with torch.no_grad():
         for _, data in enumerate(test_loader):
             model.eval()
-            if params.gpu:
-                imgs = data['image'].cuda()
-            else:
-                imgs = data['image']
+            
+            imgs = data['image']
 
             synthesized_imgs, _, _ = model(imgs)
 
