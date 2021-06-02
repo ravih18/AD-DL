@@ -126,6 +126,11 @@ class MRIDataset(Dataset):
                                    'deeplearning_prepare_data', '%s_based' % mode, 'custom',
                                    participant + '_' + session
                                    + FILENAME_TYPE['gm_maps'] + '.pt')
+        elif self.preprocessing == "pet-linear":
+            image_path = path.join(self.caps_dict[cohort], 'subjects', participant, session,
+                                   'deeplearning_prepare_data', '%s_based' % mode, 'pet_linear',
+                                   participant + '_' + session
+                                   + FILENAME_TYPE['pet_cropped'] + '.pt')
         elif self.preprocessing == "shepplogan":
             image_path = path.join(self.caps_dict[cohort], 'subjects',
                                    '%s_%s%s.pt' % (participant, session, FILENAME_TYPE['shepplogan']))
