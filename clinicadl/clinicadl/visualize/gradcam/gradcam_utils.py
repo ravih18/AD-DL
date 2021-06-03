@@ -90,13 +90,13 @@ class GradCAM(PropBase):
         self.compute_gradient_weights()
 
         # get activation
-        self.activiation = self.get_conv_outputs(
+        self.activation = self.get_conv_outputs(
             self.outputs_forward, self.target_layer)
 
         with torch.no_grad():
-            self.activiation = self.activiation[None, :, :, :, :]
+            self.activation = self.activation[None, :, :, :, :]
             self.weights = self.weights[:, None, :, :, :]
-            gcam = F.conv3d(self.activiation, (self.weights.cuda()), padding=0, groups=len(self.weights))
+            gcam = F.conv3d(self.activation, (self.weights.cuda()), padding=0, groups=len(self.weights))
             gcam = gcam.squeeze(dim=0)
             gcam = F.upsample(gcam, (self.image_size, self.image_size), mode="bilinear")
             gcam = torch.abs(gcam)
