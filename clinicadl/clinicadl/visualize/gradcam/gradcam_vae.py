@@ -61,7 +61,7 @@ def attention_map(params):
                           params.gpu, filename='model_best.pth.tar')
     # create GradCAM
     mu_avg, logvar_avg = 0, 1
-    gcam = GradCAM(model, target_layer='encoder.sequential.3.layer.0')
+    gcam = GradCAM(model, target_layer='encoder.sequential.2.layer.0')
 
     # create output dir
     im_path = os.path.join(params.output_dir, 'attention_maps')
