@@ -7,3 +7,4 @@ def save_pair(tensor_a, tensor_b, path):
     ax2.set_title('Output image')
     ax2.imshow(tensor_b.permute(1, 2, 0)[:, :, 0])
     plt.savefig(path)
+    plt.close()
