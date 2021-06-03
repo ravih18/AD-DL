@@ -4,7 +4,7 @@ import os
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
-# from clinicadl.synthesis.synthesis_utils import 
+from clinicadl.synthesis.synthesis_utils import save_pair
 from clinicadl.tools.deep_learning.models import init_model, load_model
 from clinicadl.tools.deep_learning.data import (load_data_test,
                                                 get_transforms,
@@ -74,14 +74,14 @@ def evaluate_vae(params):
             synthesized_imgs, _, _ = model(imgs)
 
             for i in range(imgs.size(0)):
-                out_imgs = synthesized_imgs[i].permute(1, 2, 0).cpu()[:, :, 0]
-                plt.imshow(out_imgs)
-                plt.savefig(os.path.join(
-                    im_path,
-                    "{}_{}_{}-synthesized.png".format(
-                        data['participant_id'][0],
-                        data['session_id'][0],
-                        data['label'][0])
-                    )
+                in_imgs = imgs[i].cpu()
+                out_imgs = synthesized_imgs[i].cpu()
+                path_imgs = os.path.join(
+                im_path,
+                "{}_{}_{}-io.png".format(
+                    data['participant_id'][0],
+                    data['session_id'][0],
+                    data['label'][0])
                 )
+                save_pair(in_imgs, out_imgs, path_imgs)
  
