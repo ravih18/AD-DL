@@ -67,7 +67,7 @@ class VAE_Encoder(nn.Module):
                  latent_dim=1, feature_size=1024):
         """
         Feature size is the size of the vector if latent_dim=1 
-        or is the W/H of the output channels if laten_dim=2
+        or is the number of feature maps (number of channels) if latent_dim=2
         """
         super(VAE_Encoder, self).__init__()
 
@@ -98,9 +98,10 @@ class VAE_Encoder(nn.Module):
         elif latent_dim==2:
             self.layers.append(nn.Sequential(
                 nn.Conv2d(
-                    first_layer_channels * (n_conv+1),
+                    first_layer_channels * 2**(n_conv+1),
                     feature_size,
-                    4, stride=1, padding=0, bias=False)
+                    4, stride=1, padding=0, bias=False),
+                nn.ReLU()
             ))
         else:
             raise AttributeError("Bad latent dimension specified. Latent dimension must be 1 or 2")
@@ -142,6 +143,14 @@ class VAE_Decoder(nn.Module):
                     self.input_w // (2 ** n_conv)),
                 nn.ReLU(),
             ))
+        elif latent_dim==2:
+            self.layers.append(
+                nn.ConvTranspose2d(
+                    feature_size,
+                    last_layer_channels * 2**(n_conv-1),
+                    4, stride=1, padding=0, bias=False),
+                nn.ReLU()
+            )
         else:
             raise AttributeError("Bad latent dimension specified. Latent dimension must be 1 or 2")
 

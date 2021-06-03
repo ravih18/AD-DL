@@ -26,11 +26,20 @@ class VanillaVAE(nn.Module):
             first_layer_channels=self.io_layer_channel
         )
 
-        # hidden => mu
-        self.fc1 = nn.Linear(self.feature_size, self.latent_size)
-
-        # hidden => logvar
-        self.fc2 = nn.Linear(self.feature_size, self.latent_size)
+        if self.latent_dim==1:
+            # hidden => mu
+            self.fc1 = nn.Linear(self.feature_size, self.latent_size)
+            # hidden => logvar
+            self.fc2 = nn.Linear(self.feature_size, self.latent_size)
+        elif self.latent_dim==2:
+            # hidden => mu
+            self.fc1 = nn.Conv2d(self.feature_size, 1,
+                                 4, stride=1, padding=0, bias=False)
+            # hidden => logvar
+            self.fc2 = nn.Conv2d(self.feature_size, 1,
+                                 4, stride=1, padding=0, bias=False)
+        else:
+            raise AttributeError("Bad latent dimension specified. Latent dimension must be 1 or 2")
 
         self.decoder = VAE_Decoder(
             input_shape=self.input_shape,
