@@ -144,21 +144,21 @@ class VAE_Decoder(nn.Module):
                 nn.ReLU(),
             ))
         elif latent_dim==2:
-            self.layers.append(
+            self.layers.append(nn.Sequential(
                 nn.ConvTranspose2d(
                     feature_size,
                     last_layer_channels * 2**(n_conv-1),
                     4, stride=1, padding=0, bias=False),
                 nn.ReLU()
-            )
+            ))
         else:
             raise AttributeError("Bad latent dimension specified. Latent dimension must be 1 or 2")
 
         for i in range(n_conv-1, 0, -1):
             self.layers.append(DecoderLayer(
                 last_layer_channels * 2**(i),
-                last_layer_channels * 2**(i-1)
-            ))
+                last_layer_channels * 2**(i-1))
+            )
 
         self.layers.append(nn.Sequential(
             nn.ConvTranspose2d(
