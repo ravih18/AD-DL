@@ -90,9 +90,7 @@ def evaluate_vae(params):
                 "{}_{}_{}-io.png".format(sub, ses, label))
             save_pair(x, y, path_imgs)
 
-            x, y = x.numpy(), y.numpy()
-            print(x.shape)
-            print(y.shape)
+            x, y = x[0].numpy(), y[0].numpy()
             eval_dict['mse'].append(compare_mse(x, y))
             eval_dict['psnr'].append(compare_psnr(x, y))
             eval_dict['ssim'].append(compare_ssim(x, y))
