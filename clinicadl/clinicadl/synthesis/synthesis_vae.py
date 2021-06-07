@@ -1,10 +1,12 @@
 import numpy as np
+import pandas as pd
 import torch
 import os
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
+from skimage.measure import compare_psnr, compare_mse, compare_ssim
 
-from clinicadl.synthesis.synthesis_utils import save_pair
+from clinicadl.synthesis.synthesis_utils import save_eval, save_mean_score, save_pair
 from clinicadl.tools.deep_learning.models import init_model, load_model
 from clinicadl.tools.deep_learning.data import (load_data_test,
                                                 get_transforms,
@@ -45,7 +47,7 @@ def evaluate_vae(params):
 
     test_loader = DataLoader(
         data_test,
-        batch_size=params.batch_size,
+        batch_size=1,
         shuffle=False,
         num_workers=params.num_workers,
         pin_memory=True
@@ -61,7 +63,14 @@ def evaluate_vae(params):
     im_path = os.path.join(params.output_dir, 'output_images')
     if not os.path.exists(im_path):
         os.mkdir(im_path)
+    test_path = os.path.join(params.output_dir, 'model_eval')
+    if not os.path.exists(im_path):
+        os.mkdir(im_path)
     
+    # Create evaluation metrics data
+    sub_list, ses_list, label_list = [], [], []
+    eval_dict = {'mse': [], 'psnr': [], 'ssim': []}
+
     # loop on data set
     with torch.no_grad():
         for _, data in enumerate(test_loader):
@@ -73,15 +82,23 @@ def evaluate_vae(params):
 
             synthesized_imgs, _, _ = model(imgs)
 
-            for i in range(imgs.size(0)):
-                in_imgs = imgs[i].cpu()
-                out_imgs = synthesized_imgs[i].cpu()
-                path_imgs = os.path.join(
+            in_imgs = imgs[0].cpu()
+            out_imgs = synthesized_imgs[0].cpu()
+            sub = data['participant_id'][0]
+            ses = data['session_id'][0]
+            label = data['label'][0]
+
+            path_imgs = os.path.join(
                 im_path,
-                "{}_{}_{}-io.png".format(
-                    data['participant_id'][0],
-                    data['session_id'][0],
-                    data['label'][0])
-                )
-                save_pair(in_imgs, out_imgs, path_imgs)
- 
+                "{}_{}_{}-io.png".format(sub, ses, label))
+            save_pair(in_imgs, out_imgs, path_imgs)
+
+            eval_dict['mse'].append(compare_mse(in_imgs, out_imgs))
+            eval_dict['psnr'].append(compare_mse(in_imgs, out_imgs))
+            eval_dict['ssim'].append(compare_mse(in_imgs, out_imgs))
+            sub_list.append(sub)
+            ses_list.append(ses)
+            label_list.append(label)
+    
+    save_mean_score(eval_dict, test_path)
+    save_eval(eval_dict, sub_list, ses_list, label_list, test_path)
