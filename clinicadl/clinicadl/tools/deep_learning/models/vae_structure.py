@@ -98,7 +98,7 @@ class VAE_Encoder(nn.Module):
         elif latent_dim==2:
             self.layers.append(nn.Sequential(
                 nn.Conv2d(
-                    first_layer_channels * 2**(n_conv+1),
+                    first_layer_channels * 2**(n_conv - 1),
                     feature_size,
                     4, stride=1, padding=0, bias=False),
                 nn.ReLU()
