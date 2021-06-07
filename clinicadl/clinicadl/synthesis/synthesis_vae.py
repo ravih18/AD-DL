@@ -91,6 +91,8 @@ def evaluate_vae(params):
             save_pair(x, y, path_imgs)
 
             x, y = x.numpy(), y.numpy()
+            print(x.shape)
+            print(y.shape)
             eval_dict['mse'].append(compare_mse(x, y))
             eval_dict['psnr'].append(compare_psnr(x, y))
             eval_dict['ssim'].append(compare_ssim(x, y))
@@ -149,7 +151,10 @@ def plot_latent_space(params):
     test_path = os.path.join(params.output_dir, 'model_eval')
     if not os.path.exists(test_path):
         os.mkdir(test_path)
-    
+
+    # create PCA
+    pca =PCA(n_components=3)
+
     latent_representations, labels = [], []
     # loop on data set
     with torch.no_grad():
@@ -166,6 +171,17 @@ def plot_latent_space(params):
             latent_representations.append(z.cpu().detach().numpy())
             labels.append(data['label'][0])
 
+    PCA.fit(latent_representations)
+
+    plt.figure()
+    colors = ['navy', 'turquoise', 'darkorange']
+    lw = 2
+
+    for color, i, target_name in zip(colors, [0, 1, 2], target_names):
+        plt.scatter(X_r[y == i, 0], X_r[y == i, 1], color=color, alpha=.8, lw=lw,
+                    label=target_name)
+    plt.legend(loc='best', shadow=False, scatterpoints=1)
+    plt.title('PCA of IRIS dataset')
             
 
 
