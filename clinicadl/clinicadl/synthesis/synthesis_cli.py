@@ -94,14 +94,14 @@ def create_synthesis_parser(subparser):
         default=False
     )
 
-    synthesis_parser = eval_parser.add_parser(
+    synthesis_parser = eval_parser.add_subparser(
         'synthesis',
         parents=[parent_parser],
         help='''Synthesize PH images on testset for defined model.'''
     )
     synthesis_parser.set_defaults(func=synthesis_func)
 
-    latentviz_parser = eval_parser.add_parser(
+    latentviz_parser = eval_parser.add_subparser(
         'latentviz',
         parents=[parent_parser],
         help='''Synthesize PH images on testset for defined model.'''
