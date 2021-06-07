@@ -14,7 +14,7 @@ def create_synthesis_parser(subparser):
     from clinicadl.utils.cli_utils import parent_parser
 
     eval_parser = subparser.add_parser(
-        'eval',
+        'evalvae',
         parents=[parent_parser],
         help='''Evaluation of VAE'''
     )
