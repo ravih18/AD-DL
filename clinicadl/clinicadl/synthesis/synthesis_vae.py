@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from skimage.measure import compare_psnr, compare_mse, compare_ssim
 from sklearn.decomposition import PCA
 
-from clinicadl.synthesis.synthesis_utils import save_eval, save_mean_score, save_pair
+from clinicadl.synthesis.synthesis_utils import save_eval, save_mean_score, save_pair, save_latent_space
 from clinicadl.tools.deep_learning.models import create_vae, load_model
 from clinicadl.tools.deep_learning.data import (load_data_test,
                                                 get_transforms,
@@ -169,17 +169,12 @@ def plot_latent_space(params):
             latent_representations.append(z.cpu().detach().numpy())
             labels.append(data['label'][0])
 
-    PCA.fit(latent_representations)
+    pca.fit(latent_representations)
+    Z_r = pca.transform(latent_representations)
 
-    plt.figure()
-    colors = ['navy', 'turquoise', 'darkorange']
-    lw = 2
+    img_path = os.path.join(test_path, "latent_space_pca.png")
 
-    for color, i, target_name in zip(colors, [0, 1, 2], target_names):
-        plt.scatter(X_r[y == i, 0], X_r[y == i, 1], color=color, alpha=.8, lw=lw,
-                    label=target_name)
-    plt.legend(loc='best', shadow=False, scatterpoints=1)
-    plt.title('PCA of IRIS dataset')
+    save_latent_space(Z_r,labels, img_path)
             
 
 

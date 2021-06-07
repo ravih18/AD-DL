@@ -12,6 +12,18 @@ def save_pair(tensor_a, tensor_b, path):
     plt.close()
 
 
+def save_latent_space(Z_r, labels, path):
+    plt.figure()
+    colors = ['navy', 'turquoise']
+    lw = 2
+
+    for color, i, target_name in zip(colors, [0, 1]):
+        plt.scatter(Z_r[labels == i, 0], Z_r[labels == i, 1], color=color, alpha=.8, lw=lw)
+    plt.legend(loc='best', shadow=False, scatterpoints=1)
+    plt.title('PCA of latent space')
+    plt.savefig(path)
+
+
 def save_mean_score(eval_dict, path):
 
     eval_dict['mean_mse_score'] = sum(eval_dict['mse']) / len(eval_dict['mse'])
