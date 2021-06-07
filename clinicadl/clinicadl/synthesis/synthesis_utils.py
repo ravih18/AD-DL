@@ -11,6 +11,7 @@ def save_pair(tensor_a, tensor_b, path):
     plt.savefig(path)
     plt.close()
 
+
 def save_mean_score(eval_dict, path):
 
     eval_dict['mean_mse_score'] = sum(eval_dict['mse']) / len(eval_dict['mse'])
@@ -21,6 +22,7 @@ def save_mean_score(eval_dict, path):
     with open(file_path, "w") as f:
         for score in ['mean_mse_score', 'mean_psnr_score', 'mean_ssim_score']:
             f.write("{} :\t{}\n".format(score, eval_dict[score]))
+
 
 def save_eval(eval_dict, sub, ses, label, path):
     df = pd.DataFrame({
