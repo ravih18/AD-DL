@@ -95,6 +95,6 @@ def init_model(options, initial_shape, architecture="cnn"):
     elif architecture=="autoencoder":
         model = AutoEncoder(model)
     elif architecture=="vae":
-        model = create_vae(options, initial_shape, latent_dim=2)
+        model = create_vae(options, initial_shape, latent_dim=2, train=False)
 
     return model
