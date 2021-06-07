@@ -2,12 +2,12 @@
 
 """
 
-def synthesis_func(args):
-    from .synthesis_vae import evaluate_vae
-    evaluate_vae(args)
-
-def latent_viz_func(args):
-    from .synthesis_vae import plot_latent_space
+def evaluation_func(args):
+    from .synthesis_vae import evaluate_vae, plot_latent_space
+    if args.action == "eval":
+        evaluate_vae(args)
+    elif args.action == "latentviz":
+        plot_latent_space(args)
 
 def create_synthesis_parser(subparser):
     
@@ -17,6 +17,12 @@ def create_synthesis_parser(subparser):
         'evalvae',
         parents=[parent_parser],
         help='''Evaluation of VAE'''
+    )
+
+    eval_parser.add_argument(
+        "action", type=str,
+        help="Action to realize."
+        choices=['eval', 'latentviz'],
     )
 
     eval_parser.add_argument(
@@ -94,16 +100,4 @@ def create_synthesis_parser(subparser):
         default=False
     )
 
-    synthesis_parser = eval_parser.add_subparser(
-        'synthesis',
-        parents=[parent_parser],
-        help='''Synthesize PH images on testset for defined model.'''
-    )
-    synthesis_parser.set_defaults(func=synthesis_func)
-
-    latentviz_parser = eval_parser.add_subparser(
-        'latentviz',
-        parents=[parent_parser],
-        help='''Synthesize PH images on testset for defined model.'''
-    )
-    latentviz_parser.set_defaults(func=latent_viz_func)
+    eval_parser.set_defaults(func=evaluation_func)
