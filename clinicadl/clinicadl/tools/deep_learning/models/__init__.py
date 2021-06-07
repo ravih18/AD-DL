@@ -54,7 +54,7 @@ def create_autoencoder(options, initial_shape, difference=0):
 
     return decoder
 
-def create_vae(options, initial_shape):
+def create_vae(options, initial_shape, latent_dim):
     """
     Creates a variational autoencoder object from the model_name.
 
@@ -65,11 +65,18 @@ def create_vae(options, initial_shape):
     from .vae import VanillaVAE
     from os import path
 
+    if latent_dim==1:
+        feature_size=1024
+        latent_size=64
+    elif latent_dim==2:
+        feature_size=16
+        latent_size=1
+
     vae = VanillaVAE(
         input_shape=initial_shape,
-        feature_size=1024,
-        latent_size=64,
-        latent_dim=1,
+        latent_dim=latent_dim,
+        feature_size=feature_size,
+        latent_size=latent_size,
         n_conv=4,
         io_layer_channel=32,
     )
@@ -87,6 +94,6 @@ def init_model(options, initial_shape, architecture="cnn"):
     elif architecture=="autoencoder":
         model = AutoEncoder(model)
     elif architecture=="vae":
-        model = create_vae(options, initial_shape)
+        model = create_vae(options, initial_shape, latent_dim=2)
 
     return model
