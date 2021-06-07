@@ -21,7 +21,7 @@ def create_synthesis_parser(subparser):
 
     eval_parser.add_argument(
         "action", type=str,
-        help="Action to realize."
+        help="Action to realize.",
         choices=['eval', 'latentviz'],
     )
 
