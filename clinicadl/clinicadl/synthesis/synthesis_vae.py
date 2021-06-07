@@ -4,6 +4,7 @@ import torch
 import os
 from torch.utils.data import DataLoader
 from skimage.measure import compare_psnr, compare_mse, compare_ssim
+from sklearn.decomposition import PCA
 
 from clinicadl.synthesis.synthesis_utils import save_eval, save_mean_score, save_pair
 from clinicadl.tools.deep_learning.models import create_vae, load_model
@@ -89,6 +90,7 @@ def evaluate_vae(params):
                 "{}_{}_{}-io.png".format(sub, ses, label))
             save_pair(x, y, path_imgs)
 
+            x, y = x.numpy(), y.numpy()
             eval_dict['mse'].append(compare_mse(x, y))
             eval_dict['psnr'].append(compare_psnr(x, y))
             eval_dict['ssim'].append(compare_ssim(x, y))
@@ -139,7 +141,7 @@ def plot_latent_space(params):
 
     # Load model
     model_dir = os.path.join(params.output_dir, 'fold-%i' % 0, 'models')
-    vae = create_vae(params, initial_shape=data_test.size, latent_dim=2, train=False)
+    vae = create_vae(params, initial_shape=dataset.size, latent_dim=2, train=False)
     model, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
                           params.gpu, filename='model_best.pth.tar')
 
@@ -147,7 +149,8 @@ def plot_latent_space(params):
     test_path = os.path.join(params.output_dir, 'model_eval')
     if not os.path.exists(test_path):
         os.mkdir(test_path)
-        
+    
+    latent_representations, labels = [], []
     # loop on data set
     with torch.no_grad():
         for _, data in enumerate(data_loader):
@@ -158,3 +161,11 @@ def plot_latent_space(params):
                 x = data['image']
     
             mu, logvar = model.encode(x)
+            z = model.reparameterize_eval(mu, logvar)[0]
+
+            latent_representations.append(z.cpu().detach().numpy())
+            labels.append(data['label'][0])
+
+            
+
+
