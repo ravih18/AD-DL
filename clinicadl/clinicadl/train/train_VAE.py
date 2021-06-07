@@ -5,7 +5,7 @@ import os
 from torch.utils.data import DataLoader
 
 from ..tools.deep_learning.vae_utils import train, visualize_image, get_criterion
-from ..tools.deep_learning.models import init_model, load_model, transfer_learning
+from ..tools.deep_learning.models import create_vae, load_model, transfer_learning
 from ..tools.deep_learning.data import (load_data,
                                         get_transforms,
                                         return_dataset,
@@ -91,7 +91,7 @@ def train_VAE(params):
         model_dir = os.path.join(params.output_dir, 'fold-%i' % fi, 'models')
         visualization_dir = os.path.join(params.output_dir, 'fold-%i' % fi, 'autoencoder_reconstruction')
     
-        vae = init_model(params, initial_shape=data_train.size, architecture="vae")
+        vae = create_vae(params, initial_shape=data_train.size, latent_dim=2, train=True)
         # vae = transfer_learning(vae, fi, source_path=params.transfer_learning_path,
         #                             gpu=params.gpu, selection=params.transfer_learning_selection)
         optimizer = getattr(torch.optim, params.optimizer)(filter(lambda x: x.requires_grad, vae.parameters()),

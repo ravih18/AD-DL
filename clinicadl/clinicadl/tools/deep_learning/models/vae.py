@@ -7,8 +7,8 @@ from .vae_structure import VAE_Encoder, VAE_Decoder
 
 class VanillaVAE(nn.Module):
     def __init__(self, input_shape, feature_size,
-                 latent_size, latent_dim,
-                 n_conv, io_layer_channel):
+                 latent_size, latent_dim, n_conv,
+                 io_layer_channel, train=False):
         super(VanillaVAE, self).__init__()
         
         self.input_shape = input_shape
@@ -17,6 +17,8 @@ class VanillaVAE(nn.Module):
         self.latent_size = latent_size
         self.n_conv = n_conv
         self.io_layer_channel = io_layer_channel
+
+        self.training = train
 
         self.encoder = VAE_Encoder(
             input_shape=self.input_shape,

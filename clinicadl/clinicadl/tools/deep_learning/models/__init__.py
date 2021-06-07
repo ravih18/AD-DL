@@ -54,7 +54,7 @@ def create_autoencoder(options, initial_shape, difference=0):
 
     return decoder
 
-def create_vae(options, initial_shape, latent_dim):
+def create_vae(options, initial_shape, latent_dim, train=False):
     """
     Creates a variational autoencoder object from the model_name.
 
@@ -79,6 +79,7 @@ def create_vae(options, initial_shape, latent_dim):
         latent_size=latent_size,
         n_conv=4,
         io_layer_channel=32,
+        train = train
     )
     print(vae)
     return vae
