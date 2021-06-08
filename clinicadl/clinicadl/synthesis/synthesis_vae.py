@@ -151,7 +151,7 @@ def plot_latent_space(params):
         os.mkdir(test_path)
 
     # create PCA
-    pca =PCA(n_components=3)
+    pca =PCA(n_components=2)
 
     latent_representations, labels = [], []
     # loop on data set
@@ -169,12 +169,11 @@ def plot_latent_space(params):
             latent_representations.append(z.cpu().detach().numpy())
             labels.append(data['label'][0])
 
+    print(latent_representations.shape)
+    print(latent_representations[0])
     pca.fit(latent_representations)
     Z_r = pca.transform(latent_representations)
 
     img_path = os.path.join(test_path, "latent_space_pca.png")
 
     save_latent_space(Z_r,labels, img_path)
-            
-
-

@@ -10,7 +10,7 @@ def evaluation_func(args):
         plot_latent_space(args)
 
 def create_synthesis_parser(subparser):
-    
+
     from clinicadl.utils.cli_utils import parent_parser
 
     eval_parser = subparser.add_parser(
