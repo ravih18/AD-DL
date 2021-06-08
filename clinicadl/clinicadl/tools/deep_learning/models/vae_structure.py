@@ -147,12 +147,12 @@ class VAE_Decoder(nn.Module):
             self.layers.append(nn.Sequential(
                 nn.ConvTranspose2d(
                     latent_size, feature_size,
-                    4, stride=1, padding=0, bias=False),
+                    3, stride=1, padding=1, bias=False),
                 nn.ReLU(),
                 nn.ConvTranspose2d(
                     feature_size,
                     last_layer_channels * 2**(n_conv-1),
-                    4, stride=1, padding=0, bias=False),
+                    3, stride=1, padding=1, bias=False),
                 nn.ReLU()
             ))
         else:
