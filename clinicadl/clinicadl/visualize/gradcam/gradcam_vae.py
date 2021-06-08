@@ -14,6 +14,7 @@ from clinicadl.tools.deep_learning.data import (load_data_test,
                                                 generate_sampler)
 from clinicadl.tools.deep_learning.iotools import return_logger, check_and_clean
 from clinicadl.tools.deep_learning.iotools import commandline_to_json, write_requirements_version, translate_parameters
+from clinicadl.utils.model_utils import select_device
 
 
 def attention_map(params):
@@ -54,11 +55,14 @@ def attention_map(params):
         pin_memory=True
     )
 
+    # device selection
+    device = select_device(params.gpu)
+
     # Load model
     model_dir = os.path.join(params.output_dir, 'fold-%i' % 0, 'models')
     vae = init_model(params, initial_shape=data_test.size, architecture="vae")
     model, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
-                          params.gpu, filename='model_best.pth.tar')
+                          device, filename='model_best.pth.tar')
     # create GradCAM
     mu_avg, logvar_avg = 0, 1
     gcam = GradCAM(model, target_layer='encoder.sequential.2.layer.0')
@@ -71,10 +75,7 @@ def attention_map(params):
     # loop on data set
     for _, data in enumerate(test_loader):
         model.eval()
-        if params.gpu:
-            imgs = data['image'].cuda()
-        else:
-            imgs = data['image']
+        imgs = data['image'].to(device)
         _, mu, logvar = gcam.forward(imgs)
 
         model.zero_grad()
