@@ -17,7 +17,7 @@ def save_latent_space(Z_r, labels, path):
     colors = ['navy', 'turquoise']
     lw = 2
 
-    for color, i, target_name in zip(colors, [0, 1]):
+    for color, i in zip(colors, [0, 1]):
         plt.scatter(Z_r[labels == i, 0], Z_r[labels == i, 1], color=color, alpha=.8, lw=lw)
     plt.legend(loc='best', shadow=False, scatterpoints=1)
     plt.title('PCA of latent space')

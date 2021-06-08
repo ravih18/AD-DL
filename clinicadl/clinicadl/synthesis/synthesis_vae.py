@@ -162,13 +162,14 @@ def plot_latent_space(params):
                 x = data['image'].cuda()
             else:
                 x = data['image']
-    
+
             mu, logvar = model.encode(x)
             z = model.reparameterize_eval(mu, logvar)[0]
 
-            latent_representations.append(z.cpu().detach().numpy())
+            latent_representations.append(z.cpu().detach().numpy()[0])
             labels.append(data['label'][0])
 
+    print(len(latent_representations))
     print(latent_representations[0].shape)
     print(latent_representations[0])
     pca.fit(latent_representations)

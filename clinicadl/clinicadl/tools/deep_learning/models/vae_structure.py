@@ -20,6 +20,7 @@ class EncoderLayer(nn.Module):
 
     def forward(self, x):
         x = F.leaky_relu(self.layer(x), negative_slope=0.2, inplace=True)
+        print(x.shape)
         return x
 
 
