@@ -3,7 +3,7 @@ import pandas as pd
 import torch
 import os
 from torch.utils.data import DataLoader
-from skimage.measure import compare_psnr, compare_mse, compare_ssim
+from skimage.metrics import mean_squared_error, peak_signal_noise_ratio, structural_similarity
 from sklearn.decomposition import PCA
 
 from clinicadl.synthesis.synthesis_utils import save_eval, save_mean_score, save_pair, save_latent_space
@@ -92,9 +92,9 @@ def evaluate_vae(params):
             save_pair(x, y, path_imgs)
 
             x, y = x[0].numpy(), y[0].numpy()
-            eval_dict['mse'].append(compare_mse(x, y))
-            eval_dict['psnr'].append(compare_psnr(x, y))
-            eval_dict['ssim'].append(compare_ssim(x, y))
+            eval_dict['mse'].append(mean_squared_error(x, y))
+            eval_dict['psnr'].append(peak_signal_noise_ratio(x, y))
+            eval_dict['ssim'].append(structural_similarity(x, y))
             sub_list.append(sub)
             ses_list.append(ses)
             label_list.append(label)
