@@ -6,11 +6,10 @@ from collections import OrderedDict
 
 class PropBase(object):
 
-    def __init__(self, model, target_layer, cuda=False):
+    def __init__(self, model, target_layer, device):
         self.model = model
-        self.cuda = cuda
-        if self.cuda:
-            self.model.cuda()
+        self.device = device
+        self.model.to(self.device)
         self.model.eval()
         self.target_layer = target_layer
         self.outputs_backward = OrderedDict()
@@ -40,11 +39,10 @@ class PropBase(object):
     # back prop the one_hot signal
     def backward(self, mu, logvar, mu_avg, logvar_avg):
         self.model.zero_grad()
-        z = self.model.reparameterize_eval(mu, logvar).cuda()
+        z = self.model.reparameterize_eval(mu, logvar).to(self.device)
         one_hot = self.encode_one_hot_batch(z, mu, logvar, mu_avg, logvar_avg)
 
-        if self.cuda:
-            one_hot = one_hot.cuda()
+        one_hot = one_hot.to(self.device)
         flag = 2
         if flag == 1:
             self.score_fc = torch.sum(F.relu(one_hot * mu))
@@ -96,7 +94,7 @@ class GradCAM(PropBase):
         with torch.no_grad():
             self.activation = self.activation[None, :, :, :, :]
             self.weights = self.weights[:, None, :, :, :]
-            gcam = F.conv3d(self.activation, (self.weights.cuda()), padding=0, groups=len(self.weights))
+            gcam = F.conv3d(self.activation, (self.weights.to(self.device)), padding=0, groups=len(self.weights))
             gcam = gcam.squeeze(dim=0)
             gcam = F.upsample(gcam, (self.image_size, self.image_size), mode="bilinear")
             gcam = torch.abs(gcam)
