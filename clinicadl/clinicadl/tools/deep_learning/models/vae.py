@@ -36,10 +36,10 @@ class VanillaVAE(nn.Module):
         elif self.latent_dim==2:
             # hidden => mu
             self.fc1 = nn.Conv2d(self.feature_size, self.latent_size,
-                                 4, stride=1, padding=0, bias=False)
+                                 3, stride=1, padding=1, bias=False)
             # hidden => logvar
             self.fc2 = nn.Conv2d(self.feature_size, self.latent_size,
-                                 4, stride=1, padding=0, bias=False)
+                                 3, stride=1, padding=1, bias=False)
         else:
             raise AttributeError("Bad latent dimension specified. Latent dimension must be 1 or 2")
 
