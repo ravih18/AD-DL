@@ -14,6 +14,7 @@ from clinicadl.tools.deep_learning.data import (load_data_test,
                                                 generate_sampler)
 from clinicadl.tools.deep_learning.iotools import return_logger, check_and_clean
 from clinicadl.tools.deep_learning.iotools import commandline_to_json, write_requirements_version, translate_parameters
+from clinicadl.utils.model_utils import select_device
 
 
 def evaluate_vae(params):
@@ -139,11 +140,14 @@ def plot_latent_space(params):
         pin_memory=True
     )
 
+    # Select the working device
+    device = select_device(params.gpu)
+
     # Load model
     model_dir = os.path.join(params.output_dir, 'fold-%i' % 0, 'models')
     vae = create_vae(params, initial_shape=dataset.size, latent_dim=2, train=False)
     model, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
-                          params.gpu, filename='model_best.pth.tar')
+                          device, filename='model_best.pth.tar')
 
     # create output dir
     test_path = os.path.join(params.output_dir, 'model_eval')
@@ -158,10 +162,7 @@ def plot_latent_space(params):
     with torch.no_grad():
         for _, data in enumerate(data_loader):
             model.eval()
-            if params.gpu:
-                x = data['image'].cuda()
-            else:
-                x = data['image']
+            x = data['image'].to(device)
 
             mu, logvar = model.encode(x)
             z = model.reparameterize_eval(mu, logvar)[0]
