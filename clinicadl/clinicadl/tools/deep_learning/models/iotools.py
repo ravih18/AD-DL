@@ -3,6 +3,7 @@
 """
 Script containing the iotools for model and optimizer serialization.
 """
+from clinicadl.utils.model_utils import select_device
 
 
 def save_checkpoint(state, accuracy_is_best, loss_is_best, checkpoint_dir, filename='checkpoint.pth.tar',
@@ -44,8 +45,7 @@ def load_model(model, checkpoint_dir, gpu, filename='model_best.pth.tar'):
     param_dict = torch.load(os.path.join(checkpoint_dir, filename), map_location="cpu")
     best_model.load_state_dict(param_dict['model'])
 
-    if gpu:
-        best_model = best_model.cuda()
+    best_model = best_model.to(select_device(gpu))
 
     return best_model, param_dict['epoch']
 
