@@ -10,6 +10,7 @@ from time import time
 
 from clinicadl.tools.deep_learning.iotools import check_and_clean
 from clinicadl.tools.deep_learning import EarlyStopping, save_checkpoint
+from clinicadl.utils.model_utils import select_device
 
 
 def train(model, train_loader, valid_loader, criterion, optimizer, resume,
@@ -67,8 +68,8 @@ def train(model, train_loader, valid_loader, criterion, optimizer, resume,
     train_loader.dataset.train()
     logger.debug(model)
 
-    if options.gpu:
-        model.cuda()
+    device = select_device(options.gpu)
+    model.to(device)
 
     # Initialize variables
     best_loss_valid = np.inf
@@ -89,10 +90,7 @@ def train(model, train_loader, valid_loader, criterion, optimizer, resume,
         step_flag = True
 
         for i, data in enumerate(train_loader):
-            if options.gpu:
-                imgs = data['image'].cuda()
-            else:
-                imgs = data['image']
+            imgs = data['image'].to(device)
             
             optimizer.zero_grad()
             recon_imgs, mu, log_var = model(imgs)
@@ -111,12 +109,12 @@ def train(model, train_loader, valid_loader, criterion, optimizer, resume,
                 if options.evaluation_steps != 0 and (i + 1) % options.evaluation_steps == 0:
                     evaluation_flag = False
                     loss_train = test_vae(
-                        model, train_loader, options.gpu, criterion)
+                        model, train_loader, device, criterion)
                     mean_loss_train = loss_train / \
                         (len(train_loader) * train_loader.batch_size)
 
                     loss_valid = test_vae(
-                        model, valid_loader, options.gpu, criterion)
+                        model, valid_loader, device, criterion)
                     mean_loss_valid = loss_valid / \
                         (len(valid_loader) * valid_loader.batch_size)
                     model.train()
@@ -151,11 +149,11 @@ def train(model, train_loader, valid_loader, criterion, optimizer, resume,
         # Always test the results and save them once at the end of the epoch
         logger.debug('Last checkpoint at the end of the epoch %d' % epoch)
 
-        loss_train = test_vae(model, train_loader, options.gpu, criterion)
+        loss_train = test_vae(model, train_loader, device, criterion)
         mean_loss_train = loss_train / \
             (len(train_loader) * train_loader.batch_size)
 
-        loss_valid = test_vae(model, valid_loader, options.gpu, criterion)
+        loss_valid = test_vae(model, valid_loader, device, criterion)
         mean_loss_valid = loss_valid / \
             (len(valid_loader) * valid_loader.batch_size)
         model.train()
@@ -199,14 +197,14 @@ def train(model, train_loader, valid_loader, criterion, optimizer, resume,
     os.remove(os.path.join(model_dir, "checkpoint.pth.tar"))
 
 
-def test_vae(model, dataloader, use_cuda, criterion):
+def test_vae(model, dataloader, device, criterion):
     """
     Computes the total loss of a given VAE and dataset wrapped by DataLoader.
 
     Args:
         model: (VAE) VAE constructed from a CNN with the VanillaVAE class.
         dataloader: (DataLoader) wrapper of the dataset.
-        use_cuda: (bool) if True a gpu is used.
+        device: (str) Device used to load data
         criterion: (loss) function to calculate the loss.
 
     Returns:
@@ -217,10 +215,7 @@ def test_vae(model, dataloader, use_cuda, criterion):
 
     total_loss = 0
     for i, data in enumerate(dataloader, 0):
-        if use_cuda:
-            inputs = data['image'].cuda()
-        else:
-            inputs = data['image']
+        inputs = data['image'].to(device)
 
         recon_imgs, mu, log_var = model(inputs)
         loss = criterion(recon_imgs, inputs, mu, log_var)
