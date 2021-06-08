@@ -65,11 +65,11 @@ def attention_map(params):
                           device, filename='model_best.pth.tar')
     # create GradCAM
     mu_avg, logvar_avg = 0, 1
-    target_layer = 'encoder.sequential.' + str(params.target_conv) + '.layer.0'
+    target_layer = 'encoder.sequential.' + str(params.target_layer) + '.layer.0'
     gcam = GradCAM(model, target_layer=target_layer, device=device)
 
     # create output dir
-    out_folder = 'attention_maps_conv' + str(params.target_conv)
+    out_folder = 'attention_maps_conv' + str(params.target_layer)
     im_path = os.path.join(params.output_dir, out_folder)
     if not os.path.exists(im_path):
         os.mkdir(im_path)
