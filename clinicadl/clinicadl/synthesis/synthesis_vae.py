@@ -169,7 +169,7 @@ def plot_latent_space(params):
             latent_representations.append(z.cpu().detach().numpy())
             labels.append(data['label'][0])
 
-    print(latent_representations.shape)
+    print(latent_representations[0].shape)
     print(latent_representations[0])
     pca.fit(latent_representations)
     Z_r = pca.transform(latent_representations)
