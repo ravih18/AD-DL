@@ -3,7 +3,7 @@ from numpy import argmax
 
 def select_device(gpu):
     if gpu:
-        return 'cuda:' + str(get_freer_gpu)
+        return 'cuda:' + str(get_freer_gpu())
     else:
         return 'cpu'
 
