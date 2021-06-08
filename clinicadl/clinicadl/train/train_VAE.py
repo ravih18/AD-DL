@@ -12,6 +12,7 @@ from ..tools.deep_learning.data import (load_data,
                                         generate_sampler)
 from ..tools.deep_learning.iotools import return_logger, check_and_clean
 from ..tools.deep_learning.iotools import commandline_to_json, write_requirements_version, translate_parameters
+from clinicadl.utils.model_utils import select_device
 
 def train_VAE(params):
     """
@@ -112,4 +113,5 @@ def train_VAE(params):
             visualize_image(best_vae, train_loader, os.path.join(visualization_dir, "train"),
                             nb_images=nb_images)
         del vae
-        torch.cuda.empty_cache()
+        with torch.cuda.device(select_device(params.gpu)):
+            torch.cuda.empty_cache()
