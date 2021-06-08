@@ -4,6 +4,7 @@ from .image_level import Conv5_FC3, Conv5_FC3_mni, Conv6_FC3, VConv5_FC3
 from .patch_level import Conv4_FC3
 from .slice_level import resnet18, ConvNet
 from .random import RandomArchitecture
+from clinicadl.utils.model_utils import select_device
 
 
 def create_model(options, initial_shape):
@@ -81,7 +82,7 @@ def create_vae(options, initial_shape, latent_dim, train=False):
         io_layer_channel=32,
         train = train
     )
-    print(vae)
+    model.to(select_device(options.gpu))
     return vae
 
 def init_model(options, initial_shape, architecture="cnn"):
