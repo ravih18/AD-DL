@@ -48,6 +48,12 @@ def create_gradcam_parser(subparser):
     )
 
     gradcam_parser.add_argument(
+        'target_layer',
+        help='Target conv to plot gradcam',
+        default=2
+    )
+
+    gradcam_parser.add_argument(
         '-cpu', '--use_cpu', action='store_true',
         help='If provided, will use CPU instead of GPU.',
         default=False
