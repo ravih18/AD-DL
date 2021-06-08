@@ -54,11 +54,14 @@ def evaluate_vae(params):
         pin_memory=True
     )
 
+    # Select the working device
+    device = select_device(params.gpu)
+
     # Load model
     model_dir = os.path.join(params.output_dir, 'fold-%i' % 0, 'models')
     vae = create_vae(params, initial_shape=data_test.size, latent_dim=2, train=False)
     model, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
-                          params.gpu, filename='model_best.pth.tar')
+                          device, filename='model_best.pth.tar')
 
     # create output dir
     im_path = os.path.join(params.output_dir, 'output_images')
@@ -76,10 +79,7 @@ def evaluate_vae(params):
     with torch.no_grad():
         for _, data in enumerate(test_loader):
             model.eval()
-            if params.gpu:
-                imgs = data['image'].cuda()
-            else:
-                imgs = data['image']
+            imgs = data['image'].to(device)
 
             synthesized_imgs, _, _ = model(imgs)
 
