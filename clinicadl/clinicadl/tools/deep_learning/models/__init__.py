@@ -82,7 +82,8 @@ def create_vae(options, initial_shape, latent_dim, train=False):
         io_layer_channel=32,
         train = train
     )
-    model.to(select_device(options.gpu))
+    print(select_device(options.gpu))
+    vae.to(select_device(options.gpu))
     return vae
 
 def init_model(options, initial_shape, architecture="cnn"):
