@@ -100,7 +100,7 @@ def evaluate_vae(params):
             path_diff = os.path.join(
                 diff_path,
                 "{}_{}_{}-difference_map.png".format(sub, ses, label))
-            save_io_diff(x, y, path_imgs)
+            save_io_diff(x, y, path_diff)
             
 
             x, y = x[0].numpy(), y[0].numpy()
