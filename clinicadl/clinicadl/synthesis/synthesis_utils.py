@@ -1,7 +1,20 @@
 import matplotlib.pyplot as plt
-from matplotlib import cm
+import matplotlib as mpl
+import numpy as np
 import pandas as pd
 import os
+
+class MidpointNormalize(mpl.colors.Normalize):
+    def __init__(self, vmin, vmax, midpoint=0, clip=False):
+        self.midpoint = midpoint
+        mpl.colors.Normalize.__init__(self, vmin, vmax, clip)
+
+    def __call__(self, value, clip=None):
+        normalized_min = max(0, 1 / 2 * (1 - abs((self.midpoint - self.vmin) / (self.midpoint - self.vmax))))
+        normalized_max = min(1, 1 / 2 * (1 + abs((self.vmax - self.midpoint) / (self.midpoint - self.vmin))))
+        normalized_mid = 0.5
+        x, y = [self.vmin, self.midpoint, self.vmax], [normalized_min, normalized_mid, normalized_max]
+        return np.ma.masked_array(np.interp(value, x, y))
 
 def save_io_diff(tensor_a, tensor_b, path):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
@@ -16,7 +29,11 @@ def save_io_diff(tensor_a, tensor_b, path):
     ax2.imshow(Y, cmap='gray')
 
     ax3.set_title('Difference')
-    mappable = ax3.imshow(Y - X, cmap="bwr")
+    diff = Y - X 
+    vmin = float(diff.min())
+    vmax = float(diff.max())
+    norm = MidpointNormalize(vmin=vmin, vmax=vmax, midpoint=0)
+    mappable = ax3.imshow(diff, cmap="bwr", norm=norm)
 
     plt.colorbar(mappable, ax=ax3)
 
