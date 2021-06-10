@@ -6,7 +6,11 @@ from torch.utils.data import DataLoader
 from skimage.metrics import mean_squared_error, peak_signal_noise_ratio, structural_similarity
 from sklearn.decomposition import PCA
 
-from clinicadl.synthesis.synthesis_utils import save_eval, save_mean_score, save_pair, save_latent_space
+from clinicadl.synthesis.synthesis_utils import (save_eval,
+                                                 save_mean_score,
+                                                 save_pair,
+                                                 save_latent_space,
+                                                 save_io_diff)
 from clinicadl.tools.deep_learning.models import create_vae, load_model
 from clinicadl.tools.deep_learning.data import (load_data_test,
                                                 get_transforms,
@@ -67,6 +71,9 @@ def evaluate_vae(params):
     im_path = os.path.join(params.output_dir, 'output_images')
     if not os.path.exists(im_path):
         os.mkdir(im_path)
+    diff_path = os.path.join(params.output_dir, 'difference_maps')
+    if not os.path.exists(diff_path):
+        os.mkdir(diff_path)
     test_path = os.path.join(params.output_dir, 'model_eval')
     if not os.path.exists(test_path):
         os.mkdir(test_path)
@@ -90,6 +97,11 @@ def evaluate_vae(params):
                 im_path,
                 "{}_{}_{}-io.png".format(sub, ses, label))
             save_pair(x, y, path_imgs)
+            path_diff = os.path.join(
+                diff_path,
+                "{}_{}_{}-difference_map.png".format(sub, ses, label))
+            save_io_diff(x, y, path_imgs)
+            
 
             x, y = x[0].numpy(), y[0].numpy()
             eval_dict['mse'].append(mean_squared_error(x, y))

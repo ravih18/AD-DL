@@ -1,6 +1,27 @@
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import pandas as pd
 import os
+
+def save_io_diff(tensor_a, tensor_b, path):
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    fig.suptitle("Input-Output comparison")
+
+    X = tensor_a.permute(1, 2, 0)[:, :, 0]
+    ax1.set_title('Input image')
+    ax1.imshow(X, cmap='gray')
+
+    Y = tensor_b.permute(1, 2, 0)[:, :, 0]
+    ax2.set_title('Output image')
+    ax2.imshow(Y, cmap='gray')
+
+    ax3.set_title('Difference')
+    ax3.imshow(Y - X, cmap="bwr")
+    fig.colorbar(cm.ScalarMappable(norm=[-1, 1], cmap="bwr"), ax=ax3)
+
+    plt.savefig(path)
+    plt.close()
+
 
 def save_pair(tensor_a, tensor_b, path):
     fig, (ax1, ax2) = plt.subplots(1, 2)
