@@ -16,9 +16,9 @@ def save_io_diff(tensor_a, tensor_b, path):
     ax2.imshow(Y, cmap='gray')
 
     ax3.set_title('Difference')
-    ax3.imshow(Y - X, cmap="bwr")
+    mappable = ax3.imshow(Y - X, cmap="bwr")
 
-    plt.colorbar(ax=ax3, location='right')
+    plt.colorbar(mappable, ax=ax3, location='right')
 
     plt.savefig(path)
     plt.close()
