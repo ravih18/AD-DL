@@ -18,6 +18,8 @@ class MidpointNormalize(mpl.colors.Normalize):
 
 def save_io_diff(tensor_a, tensor_b, path):
     fig, axes = plt.subplots(1, 3)
+    fig.set_figheight(4) 
+    fig.set_figwidth(15)
     (ax1, ax2, ax3) = axes
     fig.suptitle("Input-Output comparison")
 
@@ -36,10 +38,9 @@ def save_io_diff(tensor_a, tensor_b, path):
     norm = MidpointNormalize(vmin=vmin, vmax=vmax, midpoint=0)
     mappable = ax3.imshow(diff, cmap="bwr", norm=norm)
 
-    cax,kw = mpl.colorbar.make_axes([ax for ax in axes.flat], shrink=0.3, aspect=10)
+    cax,kw = mpl.colorbar.make_axes([ax for ax in axes.flat], shrink=0.9, aspect=20)
     plt.colorbar(mappable, cax=cax, **kw)
 
-    plt.tight_layout()
     plt.savefig(path, bbox_inches='tight')
     
     plt.close()
