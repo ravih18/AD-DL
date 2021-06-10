@@ -17,7 +17,8 @@ class MidpointNormalize(mpl.colors.Normalize):
         return np.ma.masked_array(np.interp(value, x, y))
 
 def save_io_diff(tensor_a, tensor_b, path):
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    fig, axes = plt.subplots(1, 3)
+    (ax1, ax2, ax3) = axes
     fig.suptitle("Input-Output comparison")
 
     X = tensor_a.permute(1, 2, 0)[:, :, 0]
@@ -35,6 +36,7 @@ def save_io_diff(tensor_a, tensor_b, path):
     norm = MidpointNormalize(vmin=vmin, vmax=vmax, midpoint=0)
     mappable = ax3.imshow(diff, cmap="bwr", norm=norm)
 
+    cax,kw = mpl.colorbar.make_axes([ax for ax in axes.flat])
     plt.colorbar(mappable, ax=ax3)
 
     plt.savefig(path)
