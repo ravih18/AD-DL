@@ -36,8 +36,8 @@ def save_io_diff(tensor_a, tensor_b, path):
     norm = MidpointNormalize(vmin=vmin, vmax=vmax, midpoint=0)
     mappable = ax3.imshow(diff, cmap="bwr", norm=norm)
 
-    cax,kw = mpl.colorbar.make_axes([ax for ax in axes.flat])
-    plt.colorbar(mappable, cax=cax, shrink=0.5, **kw)
+    cax,kw = mpl.colorbar.make_axes([ax for ax in axes.flat], shrink=0.5)
+    plt.colorbar(mappable, cax=cax, **kw)
 
     plt.savefig(path)
     plt.close()
