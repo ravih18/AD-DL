@@ -179,15 +179,15 @@ def plot_latent_space(params):
             mu, logvar = model.encode(x)
             z = model.reparameterize_eval(mu, logvar)[0]
 
-            latent_representations.append(z.cpu().detach().numpy()[0])
+            latent_representations.append(z.cpu().detach().numpy()[0].flatten())
             labels.append(data['label'][0])
 
     print(len(latent_representations))
     print(latent_representations[0].shape)
     print(latent_representations[0])
-    pca.fit(latent_representations)
-    Z_r = pca.transform(latent_representations)
+    #pca.fit(latent_representations)
+    principal_components = pca.fit_transform(latent_representations)
 
     img_path = os.path.join(test_path, "latent_space_pca.png")
 
-    save_latent_space(Z_r,labels, img_path)
+    save_latent_space(principal_components,labels, img_path)
