@@ -18,6 +18,8 @@ class VanillaVAE(nn.Module):
         self.n_conv = n_conv
         self.io_layer_channel = io_layer_channel
 
+        print(self.latent_dim)
+
         self.training = train
 
         self.encoder = VAE_Encoder(

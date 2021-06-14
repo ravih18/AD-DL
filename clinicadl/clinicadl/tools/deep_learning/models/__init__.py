@@ -66,6 +66,8 @@ def create_vae(options, initial_shape, latent_dim, train=False):
     from .vae import VanillaVAE
     from os import path
 
+    print(latent_dim)
+
     if latent_dim==1:
         feature_size=1024
         latent_size=64
