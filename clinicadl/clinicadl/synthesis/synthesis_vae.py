@@ -169,7 +169,7 @@ def plot_latent_space(params):
     # create PCA
     pca =PCA(n_components=2)
 
-    latent_representations, labels = [], []
+    latent_representations, sub_list, ses_list, label_list = [], [], [] []
     # loop on data set
     with torch.no_grad():
         for _, data in enumerate(data_loader):
@@ -180,11 +180,17 @@ def plot_latent_space(params):
             z = model.reparameterize_eval(mu, logvar)[0]
 
             latent_representations.append(z.cpu().detach().numpy()[0].flatten())
-            labels.append(data['label'].cpu().detach().numpy()[0])
+
+            sub, ses, label = data['participant_id'][0], data['session_id'][0], data['label'][0]
+            label_list.append(int(label))
+            sub_list.append(sub)
+            ses_list.append(ses)
 
     feat_cols = ['feature'+str(i) for i in range(len(latent_representations[0]))]
     df_latent = pd.DataFrame(latent_representations,columns=feat_cols)
-    df_latent['label'] = labels
+    df_latent['label'] = label_list
+    df_latent['subject'] = sub_list
+    df_latent['session'] = ses_list
     print('Size of the dataframe: {}'.format(df_latent.shape))
     latent_tsv_path = os.path.join(test_path, "latent_representation.tsv")
     df_latent.to_csv(latent_tsv_path, sep='\t', index=False)

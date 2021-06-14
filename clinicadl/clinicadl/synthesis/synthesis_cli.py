@@ -38,7 +38,7 @@ def create_synthesis_parser(subparser):
 
     eval_parser.add_argument(
         'mode',
-        help='''Create synthesiss on testset for defined model.''',
+        help='''Create synthesis on testset for defined model.''',
         choices=['image', 'slice', 'patch', 'roi'],
         type=str
     )
