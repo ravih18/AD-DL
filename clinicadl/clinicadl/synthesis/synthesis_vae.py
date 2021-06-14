@@ -182,10 +182,18 @@ def plot_latent_space(params):
             latent_representations.append(z.cpu().detach().numpy()[0].flatten())
             labels.append(data['label'][0])
 
+    feat_cols = ['feature'+str(i) for i in range(len(latent_representations[0]))]
+    df_latent = pd.DataFrame(latent_representations,columns=feat_cols)
+    df_latent['label'] = labels
+    print('Size of the dataframe: {}'.format(df_latent.shape))
+    latent_tsv_path = os.path.join(test_path, "latent_representation.tsv")
+    df_latent.to_csv(latent_tsv_path, sep='\t', index=False)
+
     #pca.fit(latent_representations)
-    principal_components = pca.fit_transform(latent_representations)
-    print(principal_components.shape)
+    # principal_components = pca.fit_transform(latent_representations)
+    # print(principal_components.shape)
 
-    img_path = os.path.join(test_path, "latent_space_pca.png")
+    # np.save("latent_representation")
 
-    save_latent_space(principal_components,labels, img_path)
+    # img_path = os.path.join(test_path, "latent_space_pca.png")
+    # save_latent_space(principal_components,labels, img_path)
