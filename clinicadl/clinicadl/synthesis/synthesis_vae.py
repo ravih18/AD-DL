@@ -63,7 +63,7 @@ def evaluate_vae(params):
 
     # Load model
     model_dir = os.path.join(params.output_dir, 'fold-%i' % 0, 'models')
-    vae = create_vae(params, initial_shape=data_test.size, latent_dim=2, train=False)
+    vae = create_vae(params, initial_shape=data_test.size, latent_dim=1, train=False)
     model, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
                           device, filename='model_best.pth.tar')
 
@@ -157,7 +157,7 @@ def plot_latent_space(params):
 
     # Load model
     model_dir = os.path.join(params.output_dir, 'fold-%i' % 0, 'models')
-    vae = create_vae(params, initial_shape=dataset.size, latent_dim=2, train=False)
+    vae = create_vae(params, initial_shape=dataset.size, latent_dim=1, train=False)
     model, _ = load_model(vae, os.path.join(model_dir, "best_loss"),
                           device, filename='model_best.pth.tar')
 

@@ -92,7 +92,7 @@ def train_VAE(params):
         model_dir = os.path.join(params.output_dir, 'fold-%i' % fi, 'models')
         visualization_dir = os.path.join(params.output_dir, 'fold-%i' % fi, 'autoencoder_reconstruction')
     
-        vae = create_vae(params, initial_shape=data_train.size, latent_dim=2, train=True)
+        vae = create_vae(params, initial_shape=data_train.size, latent_dim=1, train=True)
         # vae = transfer_learning(vae, fi, source_path=params.transfer_learning_path,
         #                             gpu=params.gpu, selection=params.transfer_learning_selection)
         optimizer = getattr(torch.optim, params.optimizer)(filter(lambda x: x.requires_grad, vae.parameters()),
