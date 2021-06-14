@@ -109,7 +109,7 @@ def evaluate_vae(params):
             eval_dict['ssim'].append(structural_similarity(x, y))
             sub_list.append(sub)
             ses_list.append(ses)
-            label_list.append(label)
+            label_list.append(int(label))
     
     save_mean_score(eval_dict, test_path)
     save_eval(eval_dict, sub_list, ses_list, label_list, test_path)
