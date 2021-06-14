@@ -169,7 +169,7 @@ def plot_latent_space(params):
     # create PCA
     pca =PCA(n_components=2)
 
-    latent_representations, sub_list, ses_list, label_list = [], [], [] []
+    latent_representations, sub_list, ses_list, label_list = [], [], [], []
     # loop on data set
     with torch.no_grad():
         for _, data in enumerate(data_loader):
