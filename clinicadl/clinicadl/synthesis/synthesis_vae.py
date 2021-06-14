@@ -180,7 +180,7 @@ def plot_latent_space(params):
             z = model.reparameterize_eval(mu, logvar)[0]
 
             latent_representations.append(z.cpu().detach().numpy()[0].flatten())
-            labels.append(data['label'][0])
+            labels.append(data['label'].cpu().detach().numpy()[0])
 
     feat_cols = ['feature'+str(i) for i in range(len(latent_representations[0]))]
     df_latent = pd.DataFrame(latent_representations,columns=feat_cols)
