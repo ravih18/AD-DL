@@ -182,11 +182,9 @@ def plot_latent_space(params):
             latent_representations.append(z.cpu().detach().numpy()[0].flatten())
             labels.append(data['label'][0])
 
-    print(len(latent_representations))
-    print(latent_representations[0].shape)
-    print(latent_representations[0])
     #pca.fit(latent_representations)
     principal_components = pca.fit_transform(latent_representations)
+    print(principal_components.shape)
 
     img_path = os.path.join(test_path, "latent_space_pca.png")
 
