@@ -17,6 +17,7 @@ from .extract_utils import get_parameters_dict
 @cli_param.option.use_uncropped_image
 @cli_param.option.acq_label
 @cli_param.option.suvr_reference_region
+@cli_param.option.use_uniform
 @cli_param.option.custom_suffix
 def image_cli(
     caps_directory: str,
@@ -27,6 +28,7 @@ def image_cli(
     use_uncropped_image: bool = False,
     acq_label: Optional[str] = None,
     suvr_reference_region: Optional[str] = None,
+    use_uniform: bool = False,
     custom_suffix: str = "",
 ):
     """Extract image from nifti images.
@@ -44,6 +46,7 @@ def image_cli(
         custom_suffix,
         acq_label,
         suvr_reference_region,
+        use_uniform,
     )
     DeepLearningPrepareData(
         caps_directory=caps_directory,

@@ -127,6 +127,16 @@ suvr_reference_region = click.option(
         "pons2 (used for 18F-FDG tracers)."
     ),
 )
+
+use_uniform = click.option(
+    "--ufr",
+    "-use_uniform",
+    type=bool,
+    default=False,
+    is_flag=True,
+    help="",
+)
+
 custom_suffix = click.option(
     "-cn",
     "--custom_suffix",
