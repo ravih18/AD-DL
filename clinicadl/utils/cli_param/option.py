@@ -129,8 +129,8 @@ suvr_reference_region = click.option(
 )
 
 use_uniform = click.option(
-    "--ufr",
-    "-use_uniform",
+    "--use_uniform",
+    "-ufr",
     type=bool,
     default=False,
     is_flag=True,
