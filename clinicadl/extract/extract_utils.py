@@ -65,7 +65,7 @@ def compute_extract_json(extract_json: str) -> str:
 def compute_folder_and_file_type(
     parameters: Dict[str, Any]
 ) -> Tuple[str, Dict[str, str]]:
-    from clinica.utils.input_files import T1W_LINEAR, T1W_LINEAR_CROPPEDi
+    from clinica.utils.input_files import T1W_LINEAR, T1W_LINEAR_CROPPED
 
     from clinicadl.extract.tmp_extract import pet_linear_nii
 
