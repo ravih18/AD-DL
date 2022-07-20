@@ -397,6 +397,11 @@ def apply_restriction(bids_df: pd.DataFrame, restriction_path: str) -> pd.DataFr
     return bids_copy_df
 
 
+def get_session_baseline(subject_df, subject):
+    list_session = [x[1] for x in df.index.values.tolist()]
+    return min(list_session)
+
+
 def get_labels(
     merged_tsv: str,
     missing_mods: str,
@@ -488,7 +493,13 @@ def get_labels(
         np.zeros(len(bids_df)), index=bids_df.index
     )
     for subject, subject_df in bids_df.groupby(level=0):
-        baseline_diagnosis = subject_df.loc[(subject, "ses-M00"), "diagnosis"]
+        try:
+            baseline_diagnosis = subject_df.loc[(subject, "ses-M00"), "diagnosis"]
+        except:
+            session_baseline = get_session_baseline(subject_df, subject)
+            baseline_diagnosis = subject_df.loc[
+                (subject, session_baseline), "diagnosis"
+            ]
         bids_copy_df.loc[subject, "baseline_diagnosis"] = baseline_diagnosis
 
     bids_df = copy(bids_copy_df)
