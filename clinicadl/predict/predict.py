@@ -14,8 +14,7 @@ def predict(
     label: str = None,
     gpu: bool = True,
     n_proc: int = 0,
-    batch_size: int = 8,
-    split_list: List[int] = None,
+    batch_size: int = 1,
     selection_metrics: List[str] = None,
     diagnoses: List[str] = None,
     multi_cohort: bool = False,
@@ -28,6 +27,7 @@ def predict(
     """
     This function loads a MAPS and predicts the global metrics and individual values
     for all the models selected using a metric in selection_metrics.
+
     Args:
         maps_dir: path to the MAPS.
         data_group: name of the data group tested.
@@ -52,24 +52,18 @@ def predict(
     # Check if task is reconstruction for "save_tensor" and "save_nifti"
     if save_tensor and maps_manager.network_task != "reconstruction":
         raise ClinicaDLArgumentError(
-            "Cannot save tensors if the network task is not reconstruction."
-            " Please remove --save_tensor option."
+            "Cannot save tensors if the network task is not reconstruction. Please remove"
+            " --save_tensor option."
         )
     if save_nifti and maps_manager.network_task != "reconstruction":
         raise ClinicaDLArgumentError(
-            "Cannot save nifti if the network task is not reconstruction."
-            " Please remove --save_nifti option."
-        )
-    if monte_carlo and maps_manager.network_task != "reconstruction":
-        raise ClinicaDLArgumentError(
-            "Cannot use Monte Carlo if the network task is not reconstruction."
-            " Please remove --monte_carlo option."
+            "Cannot save nifti if the network task is not reconstruction. Please remove"
+            " --save_nifti option."
         )
     maps_manager.predict(
         data_group,
         caps_directory=caps_directory,
         tsv_path=tsv_path,
-        split_list=split_list,
         selection_metrics=selection_metrics,
         multi_cohort=multi_cohort,
         diagnoses=diagnoses,

@@ -250,9 +250,7 @@ class TaskManager:
                     )
                     # Create file name according to participant and session id
                     input_filename = f"{participant_id}_{session_id}_image_input.nii.gz"
-                    output_filename = (
-                        f"{participant_id}_{session_id}_image_output.nii.gz"
-                    )
+                    output_filename = f"{participant_id}_{session_id}_image_output.nii.gz"
                     nib.save(input_nii, path.join(nifti_path, input_filename))
                     nib.save(output_nii, path.join(nifti_path, output_filename))
 
@@ -306,7 +304,9 @@ class TaskManager:
                             input_filename = (
                                 f"{participant_id}_{session_id}_image_input.nii.gz"
                             )
-                            output_filename = f"{participant_id}_{session_id}_image_output-mc{i}.nii.gz"
+                            output_filename = (
+                                f"{participant_id}_{session_id}_image_output-mc{i}.nii.gz"
+                            )
                             nib.save(input_nii, path.join(nifti_path, input_filename))
                             nib.save(output_nii, path.join(nifti_path, output_filename))
 

@@ -767,64 +767,60 @@ class MapsManager:
 
         retain_best = RetainBest(selection_metrics=list(self.selection_metrics))
 
-        profiler = self._init_profiler()
-
         while epoch < self.epochs and not early_stopping.step(metrics_valid["loss"]):
             logger.info(f"Beginning epoch {epoch}.")
 
             model.zero_grad()
             evaluation_flag, step_flag = True, True
 
-            with profiler:
-                for i, data in enumerate(train_loader):
-                    _, loss_dict = model.compute_outputs_and_loss(data, criterion)
-                    logger.debug(f"Train loss dictionnary {loss_dict}")
-                    loss = loss_dict["loss"]
-                    loss.backward()
+            for i, data in enumerate(train_loader):
+                _, loss_dict = model.compute_outputs_and_loss(data, criterion)
+                logger.debug(f"Train loss dictionnary {loss_dict}")
+                loss = loss_dict["loss"]
+                loss.backward()
 
-                    if (i + 1) % self.accumulation_steps == 0:
-                        step_flag = False
-                        optimizer.step()
-                        optimizer.zero_grad()
+                if (i + 1) % self.accumulation_steps == 0:
+                    step_flag = False
+                    optimizer.step()
+                    optimizer.zero_grad()
 
-                        del loss
+                    del loss
 
-                        # Evaluate the model only when no gradients are accumulated
-                        if (
-                            self.evaluation_steps != 0
-                            and (i + 1) % self.evaluation_steps == 0
-                        ):
-                            evaluation_flag = False
+                    # Evaluate the model only when no gradients are accumulated
+                    if (
+                        self.evaluation_steps != 0
+                        and (i + 1) % self.evaluation_steps == 0
+                    ):
+                        evaluation_flag = False
 
-                            _, metrics_train = self.task_manager.test(
-                                model, train_loader, criterion
-                            )
-                            _, metrics_valid = self.task_manager.test(
-                                model, valid_loader, criterion
-                            )
+                        _, metrics_train = self.task_manager.test(
+                            model, train_loader, criterion
+                        )
+                        _, metrics_valid = self.task_manager.test(
+                            model, valid_loader, criterion
+                        )
 
-                            model.train()
-                            train_loader.dataset.train()
+                        model.train()
+                        train_loader.dataset.train()
 
-                            log_writer.step(
-                                epoch,
-                                i,
-                                metrics_train,
-                                metrics_valid,
-                                len(train_loader),
-                            )
-                            logger.info(
-                                f"{self.mode} level training loss is"
-                                f" {metrics_train['loss']} at the end of"
-                                f" iteration {i}"
-                            )
-                            logger.info(
-                                f"{self.mode} level validation loss is"
-                                f" {metrics_valid['loss']} at the end of"
-                                f" iteration {i}"
-                            )
+                        log_writer.step(
+                            epoch,
+                            i,
+                            metrics_train,
+                            metrics_valid,
+                            len(train_loader),
+                        )
+                        logger.info(
+                            f"{self.mode} level training loss is"
+                            f" {metrics_train['loss']} at the end of"
+                            f" iteration {i}"
+                        )
+                        logger.info(
+                            f"{self.mode} level validation loss is"
+                            f" {metrics_valid['loss']} at the end of"
+                            f" iteration {i}"
+                        )
 
-                            profiler.step()
 
             # If no step has been performed, raise Exception
             if step_flag:
@@ -2100,33 +2096,6 @@ class MapsManager:
                 " Please choose between classification, regression and"
                 " reconstruction."
             )
-
-    def _init_profiler(self):
-        if self.profiler:
-            from torch.profiler import (
-                ProfilerActivity,
-                profile,
-                schedule,
-                tensorboard_trace_handler,
-            )
-
-            time = datetime.now().strftime("%H:%M:%S")
-            filename = [self.maps_path / "profiler" / f"clinicadl_{time}"]
-            profiler = profile(
-                activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
-                schedule=schedule(wait=2, warmup=2, active=30, repeat=1),
-                on_trace_ready=tensorboard_trace_handler(filename[0]),
-                profile_memory=True,
-                record_shapes=False,
-                with_stack=False,
-                with_flops=False,
-            )
-        else:
-            from contextlib import nullcontext
-
-            profiler = nullcontext()
-            profiler.step = lambda *args, **kwargs: None
-        return profiler
 
     ###############################
     # Getters                     #
