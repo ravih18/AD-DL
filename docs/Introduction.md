@@ -1,6 +1,8 @@
 ClinicaDL is the deep learning extension of [Clinica](https://aramislab.paris.inria.fr/clinica/docs/public/latest/WhatIsClinica/),
 an open source python library for neuroimaging preprocessing.
 
+![Schemes of the link between clinica and clinicaDL](./images/schema_c_cdl.png)
+
 ## Data formatting
 
 Clinica (and so ClinicaDL) relies on raw input data sets formatted with the [BIDS (Brain Imaging Data Structure)
@@ -15,7 +17,7 @@ the BIDS.
 
 Finally, ClinicaDL takes as input these preprocessed images to train deep neural networks.
 To guarantee reproducibility, the training procedure outputs multiple files which are organized
-according to a specific structure: the MAPS (Model Analysis and Processing Structure).
+according to a specific structure: the **MAPS** (Model Analysis and Processing Structure).
 
 ## MAPS definition
 
@@ -156,7 +158,7 @@ split-<i>
 
 ### Level 3 - model application to data groups
 
-The last level corresponds to the content of `best-<metric>`. In this folder, the weights of the model is available (`best_model.pth.tar`)
+The last level corresponds to the content of `best-<metric>`. In this folder, the weights of the model are available (`best_model.pth.tar`)
 and their application to different data groups can be found:
 
 ```Text

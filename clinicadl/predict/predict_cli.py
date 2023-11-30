@@ -1,6 +1,9 @@
+from pathlib import Path
+
 import click
 
 from clinicadl.utils import cli_param
+from clinicadl.utils.exceptions import ClinicaDLArgumentError
 
 
 @click.command(name="predict", no_args_is_help=True)
@@ -8,14 +11,14 @@ from clinicadl.utils import cli_param
 @cli_param.argument.data_group
 @click.option(
     "--caps_directory",
-    type=click.Path(exists=True),
+    type=click.Path(exists=True, path_type=Path),
     default=None,
     help="Data using CAPS structure, if different from the one used during network training.",
 )
 @click.option(
     "--participants_tsv",
     default=None,
-    type=click.Path(),
+    type=click.Path(exists=True, path_type=Path),
     help="""Path to the file with subjects/sessions to process, if different from the one used during network training.
     If it includes the filename will load the TSV file directly.
     Else will load the baseline TSV files of wanted diagnoses produced by `tsvtool split`.""",
@@ -62,13 +65,7 @@ from clinicadl.utils import cli_param
     is_flag=True,
     help="Save the reconstruction output in the MAPS in Pytorch tensor format.",
 )
-@click.option(
-    "--save_nifti",
-    type=bool,
-    default=False,
-    is_flag=True,
-    help="Save the reconstruction output in the MAPS in NIfTI format.",
-)
+@cli_param.option.save_nifti
 @click.option(
     "--save_latent_tensor",
     type=bool,
@@ -79,6 +76,7 @@ from clinicadl.utils import cli_param
 @cli_param.option.split
 @cli_param.option.selection_metrics
 @cli_param.option.use_gpu
+@cli_param.option.amp
 @cli_param.option.n_proc
 @cli_param.option.batch_size
 @cli_param.option.overwrite
@@ -89,6 +87,7 @@ def cli(
     participants_tsv,
     split,
     gpu,
+    amp,
     n_proc,
     batch_size,
     use_labels,
@@ -111,6 +110,10 @@ def cli(
 
     if gpu:
         check_gpu()
+    elif amp:
+        raise ClinicaDLArgumentError(
+            "AMP is designed to work with modern GPUs. Please add the --gpu flag."
+        )
 
     from .predict import predict
 
@@ -122,6 +125,7 @@ def cli(
         use_labels=use_labels,
         label=label,
         gpu=gpu,
+        amp=amp,
         n_proc=n_proc,
         batch_size=batch_size,
         split_list=split,

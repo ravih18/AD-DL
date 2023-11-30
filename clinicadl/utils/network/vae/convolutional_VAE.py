@@ -104,7 +104,6 @@ class CVAE_3D(Network):
         return output
 
     def compute_outputs_and_loss(self, input_dict, criterion, use_labels=False):
-
         vae_criterion = self.loss
 
         self.training = True
@@ -268,7 +267,10 @@ class CVAE_3D_half(Network):
         return reconstructed
 
     def compute_outputs_and_loss(self, input_dict, criterion, use_labels=False):
+<<<<<<< HEAD
 
+=======
+>>>>>>> e4bdb9b9f2cf04ad687474e39c82fe2576f82651
         input_ = input_dict["image"].to(self.device)
         mu, logVar, reconstructed = self.forward(input_)
         losses = criterion(input_, reconstructed, mu, logVar)

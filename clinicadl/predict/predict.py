@@ -1,4 +1,5 @@
 # coding: utf8
+from pathlib import Path
 from typing import List
 
 from clinicadl import MapsManager
@@ -6,13 +7,14 @@ from clinicadl.utils.exceptions import ClinicaDLArgumentError
 
 
 def predict(
-    maps_dir: str,
+    maps_dir: Path,
     data_group: str,
-    caps_directory: str,
-    tsv_path: str,
+    caps_directory: Path,
+    tsv_path: Path,
     use_labels: bool = True,
     label: str = None,
     gpu: bool = True,
+    amp: bool = False,
     n_proc: int = 0,
     batch_size: int = 8,
     split_list: List[int] = None,
@@ -37,6 +39,7 @@ def predict(
         use_labels: by default is True. If False no metrics tsv files will be written.
         label: Name of the target value, if different from training.
         gpu: if true, it uses gpu.
+        amp: If enabled, uses Automatic Mixed Precision (requires GPU usage).
         n_proc: num_workers used in DataLoader
         batch_size: batch size of the DataLoader
         selection_metrics: list of metrics to find best models to be evaluated.
@@ -71,6 +74,7 @@ def predict(
         batch_size=batch_size,
         n_proc=n_proc,
         gpu=gpu,
+        amp=amp,
         overwrite=overwrite,
         save_tensor=save_tensor,
         save_nifti=save_nifti,

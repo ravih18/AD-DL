@@ -23,7 +23,6 @@ logger = getLogger("clinicadl.metric")
 
 class MetricModule:
     def __init__(self, metrics, n_classes=2):
-
         self.n_classes = n_classes
 
         # Check if wanted metrics are implemented
@@ -38,7 +37,7 @@ class MetricModule:
                 self.metrics[metric] = getattr(MetricModule, f"{metric.lower()}_fn")
             else:
                 raise NotImplementedError(
-                    f"The metric {metric} is not implemented in the module"
+                    f"The metric {metric} is not implemented in the module."
                 )
 
     def apply(self, y, y_pred):
@@ -51,7 +50,6 @@ class MetricModule:
         Returns:
             (Dict[str:float]) metrics results
         """
-
         if y is not None and y_pred is not None:
             results = dict()
             y = np.array(y)
@@ -228,9 +226,12 @@ class MetricModule:
         Returns:
             (float) SSIM
         """
-        from clinicadl.utils.pytorch_ssim import ssim3D
+        from clinicadl.utils.pytorch_ssim import ssim, ssim3D
 
-        return ssim3D(y, y_pred)
+        if len(y) == 3:
+            return ssim(y, y_pred).item()
+        else:
+            return ssim3D(y, y_pred).item()
 
     @staticmethod
     def psnr_fn(y, y_pred):

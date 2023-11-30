@@ -8,6 +8,10 @@ help: Makefile
 	@echo "Commands:"
 	@sed -n 's/^##//p' $<
 
+.PHONY: check.lock
+check.lock:
+	@$(POETRY) lock --check
+
 ## build			: Build the package.
 .PHONY: build
 build:
@@ -17,9 +21,9 @@ build:
 clean.doc:
 	@$(RM) -rf site
 
-.PHONY: config.testpypi
-config.testpypi:
-	@$(POETRY) config repositories.testpypi https://test.pypi.org/legacy
+.PHONY: clean.test
+clean.test:
+	@$(RM) -r .pytest_cache/
 
 ## doc			: Build the documentation.
 .PHONY: doc
@@ -66,14 +70,20 @@ lint.black: env.dev
 lint.isort: env.dev
 	@$(POETRY) run isort --check --diff $(PACKAGES)
 
-## publish		: Publish the package to pypi.
-.PHONY: publish
-publish: publish.pypi
+## Install
+.PHONY: install
+install: check.lock
+	@$(POETRY) install
 
-.PHONY: publish.pypi
-publish.pypi: build
-	@$(POETRY) publish
+.PHONY: install.dev
+install.dev: check.lock
+	@$(POETRY) install --only dev
 
-.PHONY: publish.testpypi
-publish.testpypi: build config.testpypi
-	@$(POETRY) publish --repository testpypi
+.PHONY: install.doc
+install.doc: check.lock
+	@$(POETRY) install --only docs
+
+## tests        : Run the unit tests
+.PHONY: test
+test: install
+	@$(POETRY) run python -m pytest -v tests/unittests

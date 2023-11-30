@@ -6,12 +6,15 @@ import torch
 from torch import nn
 from torch.nn.functional import softmax
 from torch.utils.data import sampler
+from torch.utils.data.distributed import DistributedSampler
 
 from clinicadl.utils.exceptions import ClinicaDLArgumentError
 
 logger = getLogger("clinicadl.task_manager")
 
 from clinicadl.utils.task_manager.task_manager import TaskManager
+
+logger = getLogger("clinicadl.task_manager")
 
 
 class ClassificationManager(TaskManager):
@@ -46,7 +49,6 @@ class ClassificationManager(TaskManager):
         return False
 
     def generate_test_row(self, idx, data, outputs):
-
         prediction = torch.argmax(outputs[idx].data).item()
         normalized_output = softmax(outputs[idx], dim=0)
         return [
@@ -78,7 +80,9 @@ class ClassificationManager(TaskManager):
         return len(label_code)
 
     @staticmethod
-    def generate_sampler(dataset, sampler_option="random", n_bins=5):
+    def generate_sampler(
+        dataset, sampler_option="random", n_bins=5, dp_degree=None, rank=None
+    ):
         df = dataset.df
         labels = df[dataset.label].unique()
         codes = set()
@@ -95,6 +99,43 @@ class ClassificationManager(TaskManager):
         weights = []
 
         for idx, label in enumerate(df[dataset.label].values):
+            key = dataset.label_fn(label)
+            weights += [weight_per_class[key]] * dataset.elem_per_image
+
+        if sampler_option == "random":
+            if dp_degree is not None and rank is not None:
+                return DistributedSampler(
+                    weights, num_replicas=dp_degree, rank=rank, shuffle=True
+                )
+            else:
+                return sampler.RandomSampler(weights)
+        elif sampler_option == "weighted":
+            if dp_degree is not None and rank is not None:
+                length = len(weights) // dp_degree + int(
+                    rank < len(weights) % dp_degree
+                )
+            else:
+                length = len(weights)
+            return sampler.WeightedRandomSampler(weights, length)
+        else:
+            raise NotImplementedError(
+                f"The option {sampler_option} for sampler on classification task is not implemented"
+            )
+
+    @staticmethod
+    def generate_sampler_ssda(dataset, df, sampler_option="random", n_bins=5):
+        n_labels = df["diagnosis_train"].nunique()
+        count = np.zeros(n_labels)
+
+        for idx in df.index:
+            label = df.loc[idx, "diagnosis_train"]
+            key = dataset.label_fn(label)
+            count[key] += 1
+
+        weight_per_class = 1 / np.array(count)
+        weights = []
+
+        for idx, label in enumerate(df["diagnosis_train"].values):
             key = dataset.label_fn(label)
             weights += [weight_per_class[key]] * dataset.elem_per_image
 
@@ -122,8 +163,8 @@ class ClassificationManager(TaskManager):
         ref: S. Raschka. Python Machine Learning., 2015
 
         Args:
-            performance_df (pd.DataFrame): results that need to be assembled.
-            validation_df (pd.DataFrame): results on the validation set used to compute the performance
+            performance_df (pd.DataFrame): Results that need to be assembled.
+            validation_df (pd.DataFrame): Results on the validation set used to compute the performance
                 of each separate part of the image.
             selection_threshold (float): with soft-voting method, allows to exclude some parts of the image
                 if their associated performance is too low.
@@ -181,7 +222,7 @@ class ClassificationManager(TaskManager):
             prediction = proba_list.index(max(proba_list))
             row = [[subject, session, 0, label, prediction] + proba_list]
             row_df = pd.DataFrame(row, columns=self.columns)
-            df_final = df_final.append(row_df)
+            df_final = pd.concat([df_final, row_df])
 
         if use_labels:
             results = self.compute_metrics(df_final)

@@ -1,4 +1,4 @@
-from os import path
+from pathlib import Path
 
 from clinicadl.utils.split_manager.split_manager import SplitManager
 
@@ -15,7 +15,12 @@ class KFoldSplit(SplitManager):
         split_list=None,
     ):
         super().__init__(
-            caps_directory, tsv_path, diagnoses, baseline, multi_cohort, split_list
+            caps_directory,
+            tsv_path,
+            diagnoses,
+            baseline,
+            multi_cohort,
+            split_list,
         )
         self.n_splits = n_splits
 
@@ -38,11 +43,8 @@ class KFoldSplit(SplitManager):
         else:
             return self.split_list
 
-    def _get_tsv_paths(self, cohort_path, split):
-        train_path = path.join(
-            cohort_path, f"train_splits-{self.n_splits}", f"split-{split}"
-        )
-        valid_path = path.join(
-            cohort_path, f"validation_splits-{self.n_splits}", f"split-{split}"
-        )
+    def _get_tsv_paths(self, cohort_path: Path, *args):
+        for split in args:
+            train_path = cohort_path / f"split-{split}"
+            valid_path = cohort_path / f"split-{split}"
         return train_path, valid_path

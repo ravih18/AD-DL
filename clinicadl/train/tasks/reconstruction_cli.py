@@ -18,6 +18,8 @@ from .task_utils import task_launcher
 @train_option.n_proc
 @train_option.batch_size
 @train_option.evaluation_steps
+@train_option.fully_sharded_data_parallel
+@train_option.amp
 # Reproducibility
 @train_option.seed
 @train_option.deterministic
@@ -25,6 +27,7 @@ from .task_utils import task_launcher
 # Model
 @train_option.architecture
 @train_option.multi_network
+@train_option.ssda_network
 # Data
 @train_option.multi_cohort
 @train_option.diagnoses
@@ -32,6 +35,10 @@ from .task_utils import task_launcher
 @train_option.normalize
 @train_option.data_augmentation
 @train_option.sampler
+@train_option.caps_target
+@train_option.tsv_target_lab
+@train_option.tsv_target_unlab
+@train_option.preprocessing_dict_target
 # Cross validation
 @train_option.n_splits
 @train_option.split
@@ -44,12 +51,17 @@ from .task_utils import task_launcher
 @train_option.patience
 @train_option.tolerance
 @train_option.accumulation_steps
+@train_option.profiler
+@train_option.track_exp
 # transfer learning
 @train_option.transfer_path
 @train_option.transfer_selection_metric
+@train_option.nb_unfrozen_layer
 # Task-related
 @train_option.selection_metrics
 @train_option.reconstruction_loss
+# informations
+@train_option.emissions_calculator
 def cli(**kwargs):
     """
     Train a deep learning model to learn a reconstruction task on neuroimaging data.
